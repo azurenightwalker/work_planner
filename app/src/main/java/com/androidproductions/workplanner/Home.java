@@ -2,15 +2,15 @@ package com.androidproductions.workplanner;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.app.Fragment;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
+
+import com.androidproductions.workplanner.fragments.BaseFragment;
+import com.androidproductions.workplanner.fragments.ToDoFragment;
 
 import java.util.Calendar;
 
@@ -25,15 +25,10 @@ public class Home extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
-                    .commit();
-        }
         cal = Calendar.getInstance();
         datePicker = (EditText) findViewById(R.id.datePicker);
         datePicker.setOnClickListener(this);
-        showDate();
+        updateDate();
     }
 
 
@@ -56,21 +51,6 @@ public class Home extends Activity implements View.OnClickListener {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.fragment_home, container, false);
-        }
-    }
-
     @Override
     public void onClick(View v) {
         dialog = new DatePickerDialog(this, datePickerListener, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
@@ -83,13 +63,16 @@ public class Home extends Activity implements View.OnClickListener {
         cal.set(Calendar.DAY_OF_MONTH, selectedDay);
         cal.set(Calendar.MONTH, selectedMonth);
         cal.set(Calendar.YEAR, selectedYear);
-        showDate();
+        updateDate();
     }
 
-    private void showDate()
+    private void updateDate()
     {
         datePicker.setText(cal.get(Calendar.DAY_OF_MONTH) + " / " + (cal.get(Calendar.MONTH) + 1) + " / "
                 + cal.get(Calendar.YEAR));
+        getFragmentManager().beginTransaction()
+                .add(R.id.container, BaseFragment.newInstance(ToDoFragment.class, cal.getTime()))
+                .commit();
     }
 
     private DatePickerDialog.OnDateSetListener datePickerListener = new DatePickerDialog.OnDateSetListener() {
